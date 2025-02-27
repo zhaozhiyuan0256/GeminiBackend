@@ -1,0 +1,12 @@
+{
+    "groundstation_1": {
+        "type": "groundstation",
+        "latitude": 20,
+        "longitude": 20
+    },
+    "ue_1": {
+        "type": "ue",
+        "latitude": 30,
+        "longitude": 30
+    }
+}
