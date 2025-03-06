@@ -1,26 +1,20 @@
-from datetime import datetime, timezone, timedelta
 import json
-from sgp4.earth_gravity import wgs84
-from sgp4.io import twoline2rv
-import pymap3d as pm
+from datetime import timedelta
 
 
-GOURNDSTATION_IMAGE_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACvSURBVDhPrZDRDcMgDAU9GqN0lIzijw6SUbJJygUeNQgSqepJTyHG91LVVpwDdfxM3T9TSl1EXZvDwii471fivK73cBFFQNTT/d2KoGpfGOpSIkhUpgUMxq9DFEsWv4IXhlyCnhBFnZcFEEuYqbiUlNwWgMTdrZ3JbQFoEVG53rd8ztG9aPJMnBUQf/VFraBJeWnLS0RfjbKyLJA8FkT5seDYS1Qwyv8t0B/5C2ZmH2/eTGNNBgMmAAAAAElFTkSuQmCC"
+GOURNDSTATION_IMAGE_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACvSURBVDhPrZDRDcMgDAU9GqN0lIzijw6SUbJJygUeNQgSqepJTyHG91LVVpwDdfxM3T9TSl1EXZvDwii471fivK73cBFFQNTT/d2KoGpfGOpSIkhUpgUMxq9DFEsWv4IXhlyCnhBFnZcFEEuYqbiUlNwWgMTdrZ3JbQFoEVG53rd8ztG9aPJMnBUQf/VFraBJeWnLS0RfjbKyLJA8FkT5seDYS1Qwyv8t0B/5C2ZmH2/eTGNNBgMmAAAAAElFTkSuQmCC",
 USEREQUIPMENT_IMAGE_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAADYUExURQAAAEzD/1DF/0/E/0zD/0zD/0vD/0vC/03D/0vD/0zD/0zD/0zD/0zD/0zD/0rC/1bG/0zD/0nC/0nC/1nH/03D/0fB/1jH/0jC/07E/0vD/0zD/0zD/0zD/0zD/0zD/0zD/0vD/0zD/0zD/03D/1LF/1TG/17J/1zI/1DE/6Pg/7Tm/7Xm/4zY/7vo/8/v/87v/9Dv/57e/7ro/83u/8zu/5ze/53e/7Pl/8bs/8Tr/8fs/5fc/2LK/2bM/3nS/3HP/1vI/0vD/0rC/27O/1/J/0nC/////1RHxfQAAAAkdFJOUwAAAAAogIODg4VVAVSuA1P8rANT/KwD/AP8A1P9qx5iZGRmQAjlJIAAAAABYktHREdgvcl7AAAAB3RJTUUH6QIbBiEGYTavcAAAAIRJREFUGNNjYGBgBAEmZjDFAAKMLKxs7Bwc7Jxc3FABHhVVNXUNNU1ePqgAv4CWtra2jq6gEFRAWERP38DA0EhUDC5gbGJqamBGbQEDU1N9c7gAv7iFpZWVtY2gBMylkrZ29g52joJSUAFpGSdnF1c3J1mY0+XkFRQUFRWUlGGeQwIMDADkLxQ8MqFFgwAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyNS0wMi0yN1QwNjozMjo1OSswMDowMPru3ScAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjUtMDItMjdUMDY6MzI6NTkrMDA6MDCLs2WbAAAAKHRFWHRkYXRlOnRpbWVzdGFtcAAyMDI1LTAyLTI3VDA2OjMzOjA2KzAwOjAwjcxR9wAAAABJRU5ErkJggg=="
 SATELLITE_IMAGE_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADJSURBVDhPnZHRDcMgEEMZjVEYpaNklIzSEfLfD4qNnXAJSFWfhO7w2Zc0Tf9QG2rXrEzSUeZLOGm47WoH95x3Hl3jEgilvDgsOQUTqsNl68ezEwn1vae6lceSEEYvvWNT/Rxc4CXQNGadho1NXoJ+9iaqc2xi2xbt23PJCDIB6TQjOC6Bho/sDy3fBQT8PrVhibU7yBFcEPaRxOoeTwbwByCOYf9VGp1BYI1BA+EeHhmfzKbBoJEQwn1yzUZtyspIQUha85MpkNIXB7GizqDEECsAAAAASUVORK5CYII="
 ACCESS_UUID = "9927edc4-e87a-4e1f-9b8b-0bfb3b05b227"
-DOCUMENT_DURATION_HOURS = 24
-TIME_STEP = 300
-NUMBER_OF_POSITIONS = 24 * 60 * 60 // TIME_STEP + 5
 
 
 def create_satellite_position_cartesian(
-    satellite_object, number_of_positions, start_time
+    satellite_object, number_of_positions, start_time, time_step
 ) -> list:
-    time_step = 0
+    cur_time_step = 0
     output = []
     for _ in range(number_of_positions):
-        current_time = start_time + timedelta(seconds=time_step)
+        current_time = start_time + timedelta(seconds=cur_time_step)
         eci_position, _ = satellite_object.propagate(
             current_time.year,
             current_time.month,
@@ -30,11 +24,11 @@ def create_satellite_position_cartesian(
             current_time.second,
         )
 
-        output.append(time_step)
+        output.append(cur_time_step)
         output.append(eci_position[0] * 1000)  # converts km's to m's
         output.append(eci_position[1] * 1000)
         output.append(eci_position[2] * 1000)
-        time_step += TIME_STEP
+        cur_time_step += time_step
 
     return output
 
@@ -68,20 +62,20 @@ class Facility:
         )
 
 
-class CZML:
+class MobilityCZML:
     def __init__(
         self,
         document_packet,
         facility_packets,
         satellite_packets,
-        access_packet,
-        link_packets,
+        # access_packet,
+        # link_packets,
     ):
         self.document_packet = document_packet
         self.facility_packets = facility_packets
         self.satellite_packets = satellite_packets
-        self.access_packet = access_packet
-        self.link_packets = link_packets
+        # self.access_packet = access_packet
+        # self.link_packets = link_packets
 
     def data(self):
         d = []
@@ -90,6 +84,23 @@ class CZML:
             d.append(facility_packet.data())
         for satellite_packet in self.satellite_packets:
             d.append(satellite_packet.data())
+        # d.append(self.access_packet.data())
+        # for link_packet in self.link_packets:
+        #     d.append(link_packet.data())
+        return d
+
+
+class RouteCZML:
+    def __init__(
+        self,
+        access_packet,
+        link_packets,
+    ):
+        self.access_packet = access_packet
+        self.link_packets = link_packets
+
+    def data(self):
+        d = []
         d.append(self.access_packet.data())
         for link_packet in self.link_packets:
             d.append(link_packet.data())
@@ -170,7 +181,7 @@ class FacilityPacket(Packet):
             "show": True,
             "image": (
                 GOURNDSTATION_IMAGE_URI
-                if facility_type == "groundstation"
+                if facility_type == "core"
                 else USEREQUIPMENT_IMAGE_URI
             ),
             "scale": 1.5,
@@ -186,8 +197,8 @@ class FacilityPacket(Packet):
         label["pixelOffset"] = ({"cartesian2": [12, 0]},)
         label["show"] = True
         label["style"] = "FILL_AND_OUTLINE"
-        if facility_type == "groundstation":
-            label["text"] = "Groundstation"
+        if facility_type == "core":
+            label["text"] = "Core"
         elif facility_type == "ue":
             label["text"] = "User Equipment"
         label["verticalOrigin"] = "CENTER"
@@ -275,166 +286,3 @@ class LinkPacket(Packet):
                 "references": ["{}#position".format(id1), "{}#position".format(id2)]
             },
         }
-
-
-class CZMLManager:
-    def __init__(
-        self,
-    ):
-        pass
-
-    def init(
-        self,
-        tle_filepath: str,
-        facility_filepath: str,
-    ):
-        self.tle_filepath = tle_filepath
-        self.facility_filepath = facility_filepath
-        self.start_time = datetime.now(timezone.utc)
-        self.duration_hours = DOCUMENT_DURATION_HOURS
-        self.stop_time = self.start_time + timedelta(hours=self.duration_hours)
-        self.start_time_str = self.start_time.isoformat()
-        self.stop_time_str = self.stop_time.isoformat()
-        self.interval_time_str = self.start_time_str + "/" + self.stop_time_str
-        self.satellite_list = self.load_satellites()
-        self.facility_list = self.load_facilities()
-
-    def refresh(self):
-        self.start_time = datetime.now(timezone.utc)
-        self.stop_time = self.start_time + timedelta(hours=self.duration_hours)
-        self.start_time_str = self.start_time.isoformat()
-        self.stop_time_str = self.stop_time.isoformat()
-        self.interval_time_str = self.start_time_str + "/" + self.stop_time_str
-
-    def get_environment(self):
-        self.refresh()
-        dp = DocumentPacket(
-            self.start_time_str,
-            self.interval_time_str,
-        )
-        fps = []
-        for facility in self.facility_list:
-            xyz = list(pm.geodetic2ecef(facility.latitude, facility.longitude, 0))
-            fps.append(
-                FacilityPacket(
-                    facility.name,
-                    self.interval_time_str,
-                    facility.type,
-                    [xyz[0], xyz[1], xyz[2]],
-                    [0, 255, 255, 255],
-                )
-            )
-        sps = []
-        for satellite in self.satellite_list:
-            sps.append(
-                SatellitePacket(
-                    satellite.name,
-                    self.interval_time_str,
-                    self.start_time_str,
-                    create_satellite_position_cartesian(
-                        satellite.satellite_object,
-                        NUMBER_OF_POSITIONS,
-                        self.start_time,
-                    ),
-                    [0, 255, 0, 0],
-                )
-            )
-
-        ap = AccessPacket()
-        czml = CZML(dp, fps, sps, ap, [])
-        return czml.data()
-
-    def get_route(self) -> list:
-        return []
-
-    def load_satellites(self) -> list:
-        l = []
-        with open(self.tle_filepath, "r") as f:
-            tles = f.read().splitlines()
-        for i in range(len(tles)):
-            if i % 3 == 0:
-                l.append(
-                    Satellite(tles[i], twoline2rv(tles[i + 1], tles[i + 2], wgs84))
-                )
-        return l
-
-    def load_facilities(self) -> list:
-        l = []
-        with open(self.facility_filepath, "r") as f:
-            data = json.load(f)
-        for name, properties in data.items():
-            l.append(
-                Facility(
-                    name,
-                    properties["type"],
-                    properties["latitude"],
-                    properties["longitude"],
-                )
-            )
-        return l
-
-
-if __name__ == "__main__":
-
-    # DocumentPacket Test
-    # current_time = datetime.now(timezone.utc)
-    # stop_time = current_time + timedelta(hours=24)
-    # current_time_str = current_time.isoformat()
-    # stop_time_str = stop_time.isoformat()
-    # interval_time_str = current_time_str + "/" + stop_time_str
-    # dp = DocumentPacket(current_time_str, interval_time_str)
-    # print(dp)
-
-    # FacilityPacket Test
-    # current_time = datetime.now(timezone.utc)
-    # stop_time = current_time + timedelta(hours=24)
-    # current_time_str = current_time.isoformat()
-    # stop_time_str = stop_time.isoformat()
-    # availability_time_str = current_time_str + "/" + stop_time_str
-    # fp = FacilityPacket(
-    #     "Groundstation1",
-    #     availability_time_str,
-    #     "groundstation",
-    #     [5634243.205387061, 2050696.8193774875, 2167696.787828758],
-    #     [0, 255, 255, 255],
-    # )
-    # print(fp)
-
-    # SatellitePacket Test
-    # current_time = datetime.now(timezone.utc)
-    # stop_time = current_time + timedelta(hours=24)
-    # current_time_str = current_time.isoformat()
-    # stop_time_str = stop_time.isoformat()
-    # availability_time_str = current_time_str + "/" + stop_time_str
-    # sp = SatellitePacket(
-    #     "gemini",
-    #     availability_time_str,
-    #     current_time_str,
-    #     create_satellite_position_cartesian(),
-    #     [0, 255, 0, 255],
-    # )
-    # print(sp)
-
-    # AccessPacket Test
-    # ap = AccessPacket()
-    # print(ap)
-
-    # current_time = datetime.now(timezone.utc)
-    # stop_time = current_time + timedelta(hours=24)
-    # current_time_str = current_time.isoformat()
-    # stop_time_str = stop_time.isoformat()
-    # availability_time_str = current_time_str + "/" + stop_time_str
-    # lp = LinkPacket(
-    #     "Satellite/gemini1",
-    #     "Satellite/gemini2",
-    #     availability_time_str,
-    #     create_link(),
-    #     [0, 255, 0, 255],
-    # )
-    # print(lp)
-
-    TLE_FILEPATH = "./data/three.tle"
-    GROUND_EQUIPMENTS_FILEPATH = "./data/facilities.json"
-    czmlManager = CZMLManager()
-    czmlManager.init(TLE_FILEPATH, GROUND_EQUIPMENTS_FILEPATH)
-    print(czmlManager.get_environment())

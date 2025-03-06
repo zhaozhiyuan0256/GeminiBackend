@@ -1,0 +1,14 @@
+{
+    "ue": [
+        "ue-1"
+    ],
+    "gnb": [
+        "gemini-2"
+    ],
+    "iupf": [
+        "gemini-1"
+    ],
+    "upf": [
+        "core-1"
+    ]
+}

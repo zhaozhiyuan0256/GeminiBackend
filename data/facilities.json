@@ -1,10 +1,10 @@
 {
-    "groundstation_1": {
-        "type": "groundstation",
+    "core-1": {
+        "type": "core",
         "latitude": 20,
         "longitude": 20
     },
-    "ue_1": {
+    "ue-1": {
         "type": "ue",
         "latitude": 30,
         "longitude": 30

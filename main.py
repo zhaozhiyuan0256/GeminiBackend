@@ -1,14 +1,7 @@
 from datetime import datetime, timezone
-from gemini_app import app, czmlManager
-
-TLE_FILEPATH = "./data/three.tle"
-GROUND_EQUIPMENTS_FILEPATH = "./data/facilities.json"
+from topology import Topology
+from gemini_app import app
 
 
 if __name__ == "__main__":
-    czmlManager.init(
-        TLE_FILEPATH, GROUND_EQUIPMENTS_FILEPATH
-    )
-    app.run()
-
-import tle2czml
+    app.run(host="192.168.160.134", port=5000)
